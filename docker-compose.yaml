@@ -31,9 +31,10 @@ services:
     networks:
       - node-network
     volumes:
-      - node-api-volume:/app
+      - ./api:/app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   nginx:
     build:
@@ -43,6 +44,8 @@ services:
       - '8080:80'
     networks:
       - node-network
+    depends_on:
+      - api
 
 volumes:
   db-volume:
