@@ -31,7 +31,7 @@ services:
     networks:
       - node-network
     volumes:
-      - ./api:/app
+      - /app
     depends_on:
       db:
         condition: service_healthy
@@ -49,7 +49,6 @@ services:
 
 volumes:
   db-volume:
-  node-api-volume:
 
 networks:
   node-network:
