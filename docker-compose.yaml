@@ -6,25 +6,20 @@ services:
     command: --innodb-use-native-aio=0
     container_name: db
     restart: always
-    volumes:
-      - db-volume:/var/lib/mysql
-      - ./mysql:/docker-entrypoint-initdb.d
     environment:
       - MYSQL_DATABASE=nodedb
       - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - db-volume:/var/lib/mysql
+      - ./mysql:/docker-entrypoint-initdb.d
     networks:
       - node-network
-    healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-uroot', '-proot']
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
   api:
     build:
       context: ./api
     container_name: api
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 50s node index.js
     environment:
       - PORT=3000
       - CONNECTION_STRING=mysql://root:root@db:3306/nodedb
@@ -33,8 +28,7 @@ services:
     volumes:
       - /app
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 
   nginx:
     build:
